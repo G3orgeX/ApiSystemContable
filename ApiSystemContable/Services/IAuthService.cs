@@ -6,5 +6,5 @@ namespace ApiSystemContable.Services;
 public interface IAuthService
 {
     Task<Usuario?> RegisterNewUserAsync(RegisterUserDto dto);
-    Task<Usuario?> LoginAsync(LoginDto dto);
+    Task<LoginResponseDto> LoginAsync(LoginDto dto);
 }

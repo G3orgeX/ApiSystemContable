@@ -14,10 +14,12 @@ namespace ApiSystemContable.Tests;
 public class DatabaseTest
 {
     private readonly ITestOutputHelper _output;
+    private readonly IJwtTokenService _jwtToken;
 
-    public DatabaseTest(ITestOutputHelper output)
+    public DatabaseTest(ITestOutputHelper output, IJwtTokenService jwtToken)
     {
         _output = output;
+        _jwtToken = jwtToken;   
     }
 
     [Fact]
@@ -96,7 +98,7 @@ public class DatabaseTest
         optionsBuilder.UseSnakeCaseNamingConvention();
 
         using var context = new AppDbContext(optionsBuilder.Options);
-        var authService = new AuthService(context);
+        var authService = new AuthService(context,_jwtToken);
 
         var email = "adminprueba@prueba.com";
         var password = "12345678";
@@ -130,7 +132,7 @@ public class DatabaseTest
             });
 
             Assert.NotNull(loggedInUser);
-            _output.WriteLine($"¡INICIO DE SESIÓN EXITOSO! Usuario autenticado: {loggedInUser.Nombre} {loggedInUser.Apellido} (ID: {loggedInUser.IdUsuario})");
+            _output.WriteLine($"¡INICIO DE SESIÓN EXITOSO! Usuario autenticado: {loggedInUser.Usuario.Nombre} {loggedInUser.Usuario.email} (ID: {loggedInUser.Usuario.Id})");
         }
         catch (Exception ex)
         {

@@ -8,10 +8,11 @@ namespace ApiSystemContable.Services;
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
-
-    public AuthService(AppDbContext context)
+    private readonly IJwtTokenService _jwt;
+    public AuthService(AppDbContext context, IJwtTokenService jwt)
     {
         _context = context;
+        _jwt = jwt;
     }
 
     public async Task<Usuario?> RegisterNewUserAsync(RegisterUserDto dto)
@@ -49,35 +50,33 @@ public class AuthService : IAuthService
         return nuevoUsuario;
     }
 
-    public async Task<Usuario?> LoginAsync(LoginDto dto)
+    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
     {
-        // Buscar el usuario por email
-        //var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email);
-        //if (user == null)
-        //{
-        //    return null;
-        //}
-
-        //// Verificar la contraseña usando pgcrypto en PostgreSQL
-        //var isValidList = await _context.Database
-        //    .SqlQueryRaw<bool>("SELECT crypt({0}, {1}) = {1}", dto.Password, user.PasswordHash)
-        //    .ToListAsync();
-
-        //if (!isValidList.FirstOrDefault())
-        //{
-        //    return null;
-        //}
-
-        //return user;
         var user = await _context.Usuarios
-       .FromSqlRaw(@"
+            .FromSqlRaw(@"
             SELECT *
             FROM Usuarios
             WHERE Email = {0}
             AND password_hash = crypt({1}, password_hash)
         ", dto.Email, dto.Password)
-       .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync();
 
-        return user;
+        if (user == null)
+        {
+            return null;
+        }
+
+        var token = _jwt.GetToken(user);
+
+        return new LoginResponseDto
+        {
+            Token = token,
+            Usuario = new UsuarioDto
+            {
+                Id = user.IdUsuario.ToString(),
+                Nombre = user.Nombre,
+                email = user.Email
+            }
+        };
     }
 }

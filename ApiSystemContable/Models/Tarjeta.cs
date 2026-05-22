@@ -6,6 +6,7 @@ public class Tarjeta
 {
     [Key]
     public int IdTarjeta { get; set; }
+    public int IdUsuario { get; set; }
     public required string Nombre { get; set; }
     public required string Titular { get; set; }
     public required string Tipo { get; set; }

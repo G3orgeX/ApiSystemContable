@@ -9,6 +9,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<ITarjetaService, TarjetaService>();
+builder.Services.AddScoped<IConsumoService, ConsumoService>();
+
 
 // CORS
 builder.Services.AddCors(options =>

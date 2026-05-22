@@ -54,28 +54,30 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _authService.LoginAsync(dto);
-            if (user == null)
+            var result = await _authService.LoginAsync(dto);
+
+            if (result == null)
             {
-                return Unauthorized(new { mensaje = "Credenciales incorrectas." });
+                return Unauthorized(new
+                {
+                    mensaje = "Credenciales incorrectas."
+                });
             }
 
             return Ok(new
             {
                 mensaje = "Inicio de sesión exitoso",
-                usuario = new
-                {
-                    user.IdUsuario,
-                    user.Nombre,
-                    user.Apellido,
-                    user.Email,
-                    user.FechaCreacion
-                }
+                token = result.Token,
+                usuario = result.Usuario
             });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { mensaje = "Error en el servidor al iniciar sesión", detalle = ex.Message });
+            return StatusCode(500, new
+            {
+                mensaje = "Error en el servidor al iniciar sesión",
+                detalle = ex.Message
+            });
         }
     }
 }

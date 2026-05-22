@@ -61,6 +61,7 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.IdTarjeta);
             entity.Property(e => e.IdTarjeta).HasColumnName("idtarjeta");
+            entity.Property(e => e.IdUsuario).HasColumnName("idusuario");
         });
 
         // Configure Consumo table
