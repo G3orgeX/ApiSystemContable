@@ -80,13 +80,22 @@ public class ConsumosController : ControllerBase
         try
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { mensaje = "Validación fallida", errores = errors });
+            }
 
             var consumo = await _consumoService.CreateConsumoAsync(dto);
-            return CreatedAtAction(nameof(GetConsumoById), new { id = consumo.IdConsumo }, consumo);
+            return CreatedAtAction(nameof(GetConsumoById), new { id = consumo.IdConsumo }, new { data = consumo, mensaje = "Consumo creado" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Known validation/operation error
+            return BadRequest(new { mensaje = ex.Message });
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error al crear consumo: {ex.Message}\n{ex.StackTrace}");
             return StatusCode(500, new { mensaje = "Error al crear consumo", detalle = ex.Message });
         }
     }

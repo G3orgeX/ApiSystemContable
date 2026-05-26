@@ -73,6 +73,13 @@ public class ConsumoService : IConsumoService
 
     public async Task<ConsumoDto> CreateConsumoAsync(CreateConsumoDto dto)
     {
+        // Verify tarjeta exists to avoid FK violations
+        var tarjeta = await _context.Tarjetas.FindAsync(dto.IdTarjeta);
+        if (tarjeta == null)
+        {
+            throw new InvalidOperationException($"Tarjeta con id {dto.IdTarjeta} no encontrada.");
+        }
+
         var valorCuota = dto.Cuotas > 0 ? dto.MontoTotal / dto.Cuotas : dto.MontoTotal;
 
         var consumo = new Consumo
