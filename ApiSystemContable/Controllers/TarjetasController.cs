@@ -58,20 +58,32 @@ public class TarjetasController : ControllerBase
         }
     }
 
+    
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateTarjeta([FromBody] CreateTarjetaDto dto)
     {
         try
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(new { mensaje = "Validación fallida", errores = errors });
+            }
 
             var userId = GetUsuarioIdFromToken();
             var tarjeta = await _tarjetaService.CreateTarjetaAsync(userId, dto);
-            return CreatedAtAction(nameof(GetTarjetaById), new { id = tarjeta.IdTarjeta }, tarjeta);
+            return Ok(new { data = tarjeta, mensaje = "Tarjeta creada exitosamente" });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { mensaje = "No autorizado", detalle = ex.Message });
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error al crear tarjeta: {ex.Message}\n{ex.StackTrace}");
             return StatusCode(500, new { mensaje = "Error al crear tarjeta", detalle = ex.Message });
         }
     }

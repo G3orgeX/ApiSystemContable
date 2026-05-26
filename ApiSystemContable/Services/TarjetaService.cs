@@ -53,10 +53,16 @@ public class TarjetaService : ITarjetaService
             IdUsuario = idUsuario,
             Nombre = dto.Nombre,
             Titular = dto.Titular,
-            Tipo = dto.Tipo,
+            Tipo = dto.Tipo.Trim().ToLower() switch
+            {
+                "credito" => "Credito",
+                "debito" => "Debito",
+                _ => throw new Exception("Tipo de tarjeta inválido")
+            },
             DiaCierre = dto.DiaCierre,
             Activo = dto.Activo
         };
+
 
         _context.Tarjetas.Add(tarjeta);
         await _context.SaveChangesAsync();
